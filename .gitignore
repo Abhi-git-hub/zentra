@@ -9,3 +9,9 @@ dist
 .env.local
 .env.*.local
 
+# Secrets and credentials
+client_secret_*.json
+data/client_secret_*.json
+*.pem
+*.key
+
