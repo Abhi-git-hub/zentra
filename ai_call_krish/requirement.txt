@@ -1,0 +1,12 @@
+# LangChain Core
+langchain
+langchain-core
+
+
+
+# Environment Variable Management
+python-dotenv
+
+# Google Gemini (PaLM) Integration
+langchain-google-genai
+google-generativeai
