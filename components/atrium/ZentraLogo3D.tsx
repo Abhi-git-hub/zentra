@@ -6,22 +6,24 @@ import { useFrame } from "@react-three/fiber";
 import { Float } from "@react-three/drei";
 
 /* ─── Orbiting Particle Streams ──────────────────────────────────── */
-const ParticleStreams = ({ count = 200 }: { count?: number }) => {
+const ParticleStreams = ({ count = 300 }: { count?: number }) => {
   const ref = useRef<THREE.Points>(null);
 
-  const { positions, speeds } = useMemo(() => {
+  const { positions, speeds, sizes } = useMemo(() => {
     const pos = new Float32Array(count * 3);
     const spd = new Float32Array(count);
+    const sz = new Float32Array(count);
     for (let i = 0; i < count; i++) {
       const angle = Math.random() * Math.PI * 2;
-      const radius = 3 + Math.random() * 4;
-      const y = (Math.random() - 0.5) * 6;
+      const radius = 2.5 + Math.random() * 5;
+      const y = (Math.random() - 0.5) * 8;
       pos[i * 3] = Math.cos(angle) * radius;
       pos[i * 3 + 1] = y;
       pos[i * 3 + 2] = Math.sin(angle) * radius;
-      spd[i] = 0.2 + Math.random() * 0.5;
+      spd[i] = 0.15 + Math.random() * 0.5;
+      sz[i] = 0.02 + Math.random() * 0.04;
     }
-    return { positions: pos, speeds: spd };
+    return { positions: pos, speeds: spd, sizes: sz };
   }, [count]);
 
   useFrame((_, delta) => {
@@ -34,8 +36,7 @@ const ParticleStreams = ({ count = 200 }: { count?: number }) => {
       const radius = Math.sqrt(x * x + z * z);
       posArr[i * 3] = Math.cos(angle) * radius;
       posArr[i * 3 + 2] = Math.sin(angle) * radius;
-      // Gentle vertical bob
-      posArr[i * 3 + 1] += Math.sin(angle * 3) * delta * 0.1;
+      posArr[i * 3 + 1] += Math.sin(angle * 3) * delta * 0.08;
     }
     ref.current.geometry.attributes.position.needsUpdate = true;
   });
@@ -57,16 +58,40 @@ const ParticleStreams = ({ count = 200 }: { count?: number }) => {
         opacity={0.7}
         sizeAttenuation
         depthWrite={false}
+        blending={THREE.AdditiveBlending}
       />
     </points>
+  );
+};
+
+/* ─── Energy Ring ────────────────────────────────────────────────── */
+const EnergyRing = ({ radius = 3.5, speed = 0.5 }: { radius?: number; speed?: number }) => {
+  const ref = useRef<THREE.Mesh>(null);
+  
+  useFrame((state) => {
+    if (!ref.current) return;
+    ref.current.rotation.z = state.clock.elapsedTime * speed;
+    const mat = ref.current.material as THREE.MeshBasicMaterial;
+    mat.opacity = 0.15 + Math.sin(state.clock.elapsedTime * 2) * 0.1;
+  });
+
+  return (
+    <mesh ref={ref} rotation={[Math.PI / 2, 0, 0]}>
+      <torusGeometry args={[radius, 0.02, 16, 100]} />
+      <meshBasicMaterial
+        color="#22c55e"
+        transparent
+        opacity={0.2}
+        side={THREE.DoubleSide}
+        blending={THREE.AdditiveBlending}
+      />
+    </mesh>
   );
 };
 
 /* ─── The Z-Arrow Logo Shape ─────────────────────────────────────── */
 const createZShape = (): THREE.Shape => {
   const s = new THREE.Shape();
-  // A stylized "Z" arrow pointing upward-right, then down-right
-  // Scaled to roughly -2 to +2 on both axes
   s.moveTo(-1.8, 1.8);
   s.lineTo(1.8, 1.8);
   s.lineTo(-0.8, 0.15);
@@ -106,21 +131,17 @@ export const ZentraLogo3D = () => {
     [shape, extrudeSettings]
   );
 
-  // Split geometry into upper (emerald) and lower (hematite) halves
-  // We achieve this by rendering two meshes with clipping planes
   const upperClip = useMemo(() => [new THREE.Plane(new THREE.Vector3(0, -1, 0), 0.1)], []);
   const lowerClip = useMemo(() => [new THREE.Plane(new THREE.Vector3(0, 1, 0), 0.1)], []);
 
   useFrame((state, delta) => {
     if (!groupRef.current) return;
-    // Elegant slow rotation
-    groupRef.current.rotation.y += delta * 0.15;
+    groupRef.current.rotation.y += delta * 0.12;
 
-    // Emerald internal pulse
     pulseRef.current += delta;
     if (emeraldRef.current) {
       const mat = emeraldRef.current.material as THREE.MeshStandardMaterial;
-      mat.emissiveIntensity = 0.6 + Math.sin(pulseRef.current * 1.5) * 0.3;
+      mat.emissiveIntensity = 0.6 + Math.sin(pulseRef.current * 1.5) * 0.4;
     }
   });
 
@@ -164,8 +185,13 @@ export const ZentraLogo3D = () => {
           decay={2}
         />
 
+        {/* Energy rings */}
+        <EnergyRing radius={3} speed={0.3} />
+        <EnergyRing radius={4} speed={-0.2} />
+        <EnergyRing radius={5} speed={0.15} />
+
         {/* Orbiting particles */}
-        <ParticleStreams />
+        <ParticleStreams count={300} />
       </group>
     </Float>
   );

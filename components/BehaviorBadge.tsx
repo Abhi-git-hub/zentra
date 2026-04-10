@@ -29,6 +29,17 @@ function tagColor(tag: BehaviorTag): string {
   }
 }
 
+function tagEmoji(tag: BehaviorTag): string {
+  switch (tag) {
+    case "DISCIPLINED": return "🎯";
+    case "PANIC_SELL": return "😰";
+    case "FOMO_BUY": return "🚀";
+    case "OVERTRADE": return "⚡";
+    case "LOSS_HOLDING": return "📉";
+    default: return "📊";
+  }
+}
+
 function tagLabel(tag: BehaviorTag): string {
   return tag.replace(/_/g, " ");
 }
@@ -48,25 +59,27 @@ export default function BehaviorBadge({ tag, explanation, visible, onAutoHide }:
         {visible && tag ? (
           <motion.div
             key={`${tag}-${explanation.slice(0, 24)}`}
-            initial={{ opacity: 0, y: 24 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 16 }}
+            initial={{ opacity: 0, y: 24, scale: 0.9 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 16, scale: 0.95 }}
             transition={{ type: "spring", stiffness: 400, damping: 28 }}
+            className="glass-card-base"
             style={{
               marginTop: 12,
               padding: 14,
-              borderRadius: 12,
-              border: "1px solid var(--border)",
-              background: "var(--bg-surface)",
-              color: "var(--text-primary)",
             }}
           >
-            <div style={{ fontSize: 20, fontWeight: 800, color: tagColor(tag), letterSpacing: 0.02 }}>
-              {tagLabel(tag)}
+            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              <span style={{ fontSize: 20 }}>{tagEmoji(tag)}</span>
+              <div style={{ fontSize: 16, fontWeight: 800, color: tagColor(tag), letterSpacing: "0.02em" }}>
+                {tagLabel(tag)}
+              </div>
             </div>
-            <p style={{ margin: "8px 0 0", fontSize: 14, lineHeight: 1.45, color: "var(--text-secondary)" }}>
-              {explanation}
-            </p>
+            {explanation && (
+              <p style={{ margin: "8px 0 0", fontSize: 13, lineHeight: 1.5, color: "var(--text-secondary)" }}>
+                {explanation}
+              </p>
+            )}
           </motion.div>
         ) : null}
       </AnimatePresence>

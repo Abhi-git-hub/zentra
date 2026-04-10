@@ -1,11 +1,10 @@
 "use client";
 
 import * as React from "react";
-
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
+import { LogIn, LogOut, User } from "lucide-react";
 
 type Props = {
-  /** After OAuth, return here (e.g. current scenario path) */
   returnPath: string;
 };
 
@@ -38,6 +37,7 @@ export default function ScenarioAuth({ returnPath }: Props) {
       cancelled = true;
       sub.subscription.unsubscribe();
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [supabase]);
 
   async function signInWithGoogle() {
@@ -61,59 +61,38 @@ export default function ScenarioAuth({ returnPath }: Props) {
   }
 
   return (
-    <div
-      style={{
-        display: "flex",
-        flexWrap: "wrap",
-        alignItems: "center",
-        gap: 10,
-        padding: "10px 12px",
-        borderRadius: 12,
-        border: "1px solid var(--border)",
-        background: "var(--bg-surface)",
-        color: "var(--text-secondary)",
-        fontSize: 13,
-      }}
-    >
+    <div className="glass-card-base p-3 text-xs">
       {userEmail ? (
-        <>
-          <span style={{ color: "var(--text-primary)" }}>Signed in as {userEmail}</span>
+        <div className="flex items-center gap-2 flex-wrap">
+          <div className="flex items-center gap-1.5 flex-1 min-w-0">
+            <User size={12} className="text-[var(--accent-primary)] flex-shrink-0" />
+            <span className="text-[var(--text-primary)] truncate text-[11px]">{userEmail}</span>
+          </div>
           <button
             type="button"
             disabled={busy}
             onClick={() => signOut()}
-            style={{
-              cursor: busy ? "not-allowed" : "pointer",
-              padding: "6px 10px",
-              borderRadius: 8,
-              border: "1px solid var(--border)",
-              background: "var(--bg-card)",
-              color: "var(--text-primary)",
-            }}
+            className="flex items-center gap-1 px-2 py-1 rounded-lg border border-[var(--border-glass)] bg-[var(--bg-glass)] text-[var(--text-secondary)] hover:text-white hover:bg-white/[0.05] transition-colors text-[11px] disabled:opacity-50"
           >
+            <LogOut size={10} />
             Sign out
           </button>
-        </>
+        </div>
       ) : (
-        <>
-          <span>Sign in to save trades to your account.</span>
+        <div className="flex flex-col gap-2">
+          <span className="text-[var(--text-secondary)] opacity-70 text-[11px]">
+            Sign in to save trades
+          </span>
           <button
             type="button"
             disabled={busy}
             onClick={() => signInWithGoogle()}
-            style={{
-              cursor: busy ? "not-allowed" : "pointer",
-              padding: "8px 12px",
-              borderRadius: 8,
-              border: "1px solid var(--border)",
-              background: "var(--accent-ai)",
-              color: "white",
-              fontWeight: 600,
-            }}
+            className="flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg bg-[var(--accent-primary)] text-white font-semibold hover:opacity-90 transition-opacity disabled:opacity-50 text-[11px]"
           >
-            Sign in with Google
+            <LogIn size={12} />
+            {busy ? "Connecting..." : "Sign in with Google"}
           </button>
-        </>
+        </div>
       )}
     </div>
   );

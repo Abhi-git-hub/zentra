@@ -1,132 +1,74 @@
+/* c:\Users\hp\Desktop\Zentra\app\globals.css */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Space+Grotesk:wght@300;400;500;600;700&display=swap');
+
 @layer base {
   :root {
-    --bg-mesh-1: #000000;
-    --bg-mesh-2: #020a05;
-    --bg-mesh-3: #000000;
-    --bg-glass: rgba(10, 25, 15, 0.4);
-    --border-glass: rgba(34, 197, 94, 0.15);
-    --nav-border: rgba(34, 197, 94, 0.1);
-
-    --text-primary: #ffffff;
-    --text-secondary: #a7f3d0;
+    --bg-main: #000000;
     
-    --accent-up: #22c55e;
-    --accent-down: #ef4444;
-    --accent-warning: #facc15;
-    --accent-primary: #10b981;
+    --accent-primary: #00C896;
+    --accent-secondary: #FF3B5C;
+    --accent-tertiary: #7B6EF6;
+    
+    --text-primary: #ffffff;
+    --text-muted: rgba(255, 255, 255, 0.65);
+    --text-faint: rgba(255, 255, 255, 0.5);
   }
 
-  /* Light Frost */
-  [data-theme="light"] {
-    --bg-mesh-1: #0a0a0a;
-    --bg-mesh-2: #05100a;
-    --bg-mesh-3: #0a0a0a;
-    --bg-glass: rgba(16, 185, 129, 0.05);
-    --border-glass: rgba(16, 185, 129, 0.15);
-    --nav-border: rgba(16, 185, 129, 0.1);
-
-    --text-primary: #d1d5db;
-    --text-secondary: #6ee7b7;
-
-    --accent-up: #10b981;
-    --accent-down: #ef4444;
-    --accent-warning: #f59e0b;
-    --accent-primary: #059669;
-  }
-
-  /* Neon Terminal */
-  [data-theme="neon"] {
-    --bg-mesh-1: #050b1a;
-    --bg-mesh-2: #001a0d;
-    --bg-mesh-3: #0a0005;
-    --bg-glass: rgba(255, 255, 255, 0.02);
-    --border-glass: rgba(0, 255, 148, 0.15); /* Subtle glowing border */
-    --nav-border: rgba(0, 255, 148, 0.2);
-
-    --text-primary: #e0f2fe;
-    --text-secondary: #bae6fd;
-
-    --accent-up: #00ff94;
-    --accent-down: #ff2d55;
-    --accent-warning: #facc15;
-    --accent-primary: #0a84ff;
+  body {
+    background-color: var(--bg-main);
+    color: var(--text-primary);
+    font-family: 'Space Grotesk', sans-serif;
+    margin: 0;
+    overflow-x: hidden;
   }
 }
 
-html, body {
-  height: 100%;
+/* Number font specific styling */
+.font-mono-num {
+  font-family: 'JetBrains Mono', monospace;
 }
 
-body {
-  margin: 0;
-  font-family: ui-sans-serif, system-ui, -apple-system, sans-serif;
-  color: var(--text-primary);
-  background-color: var(--bg-mesh-1); /* Fallback */
-  position: relative;
-  overflow-x: hidden;
-  transition: color 200ms ease, background-color 200ms ease;
-}
-
-/* Background animated mesh gradient */
-body::before {
-  content: "";
-  position: fixed;
-  top: -50%;
-  left: -50%;
-  width: 200%;
-  height: 200%;
-  z-index: -1;
-  background: radial-gradient(circle at 50% 50%, var(--bg-mesh-2) 0%, transparent 40%),
-              radial-gradient(circle at 80% 20%, var(--bg-mesh-1) 0%, transparent 50%),
-              radial-gradient(circle at 20% 80%, var(--bg-mesh-3) 0%, transparent 50%);
-  animation: mesh-shift 12s ease-in-out infinite alternate;
-  pointer-events: none;
-}
-
-[data-theme="light"] body::before {
-  background: var(--bg-mesh-1);
-  animation: none; /* No mesh in light mode since it's ivory */
-}
-
-@keyframes mesh-shift {
-  0% {
-    transform: translate(0, 0) scale(1);
-  }
-  50% {
-    transform: translate(-2%, 3%) scale(1.05);
-  }
-  100% {
-    transform: translate(2%, -4%) scale(1);
-  }
-}
-
-/* Custom Utilities for smooth transitions across the app */
-* {
-  box-sizing: border-box;
-}
-
-.glass-card-base {
-  backdrop-filter: blur(20px);
-  background: var(--bg-glass);
-  border: 1px solid var(--border-glass);
-  border-radius: 16px;
-  transition: all 200ms ease;
-}
-
-/* Hide scrollbar for badge stack etc */
+/* Hide scrollbar but keep functionality */
 .no-scrollbar::-webkit-scrollbar {
   display: none;
 }
 .no-scrollbar {
-  -ms-overflow-style: none;  /* IE and Edge */
-  scrollbar-width: none;  /* Firefox */
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
 
-@keyframes xpPulse {
-  0%, 100% { opacity: 1; text-shadow: 0 0 8px rgba(217,119,6,0.6); }
-  50% { opacity: 0.85; text-shadow: 0 0 16px rgba(217,119,6,0.8), 0 0 4px rgba(217,119,6,0.4); }
+/* Lenis recommended CSS */
+html.lenis, html.lenis body {
+  height: auto;
+}
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+.lenis.lenis-smooth [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+.lenis.lenis-stopped {
+  overflow: hidden;
+}
+.lenis.lenis-scrolling iframe {
+  pointer-events: none;
+}
+
+@keyframes borderShimmer {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@keyframes pulse-shadow {
+  0% { box-shadow: 0 0 30px rgba(0,200,150,0.4); }
+  50% { box-shadow: 0 0 30px rgba(0,200,150,0.8); }
+  100% { box-shadow: 0 0 30px rgba(0,200,150,0.4); }
+}
+
+.animate-pulse-shadow {
+  animation: pulse-shadow 2s infinite ease-in-out;
 }

@@ -10,6 +10,53 @@ import { HolographicAuth } from "./HolographicAuth";
 import { PostProcessing } from "./PostProcessing";
 import { AtriumLoader } from "./AtriumLoader";
 
+/* ─── Ambient Star Dust ───────────────────────────────────────────── */
+const StarDust = ({ count = 500 }: { count?: number }) => {
+  const ref = useRef<THREE.Points>(null);
+
+  const positions = React.useMemo(() => {
+    const pos = new Float32Array(count * 3);
+    for (let i = 0; i < count; i++) {
+      pos[i * 3] = (Math.random() - 0.5) * 100;
+      pos[i * 3 + 1] = Math.random() * 40;
+      pos[i * 3 + 2] = (Math.random() - 0.5) * 100;
+    }
+    return pos;
+  }, [count]);
+
+  useFrame((_, delta) => {
+    if (!ref.current) return;
+    const posArr = ref.current.geometry.attributes.position.array as Float32Array;
+    for (let i = 0; i < count; i++) {
+      posArr[i * 3 + 1] += delta * 0.05;
+      if (posArr[i * 3 + 1] > 40) posArr[i * 3 + 1] = 0;
+    }
+    ref.current.geometry.attributes.position.needsUpdate = true;
+  });
+
+  return (
+    <points ref={ref}>
+      <bufferGeometry>
+        <bufferAttribute
+          attach="attributes-position"
+          count={count}
+          array={positions}
+          itemSize={3}
+        />
+      </bufferGeometry>
+      <pointsMaterial
+        size={0.08}
+        color="#6366f1"
+        transparent
+        opacity={0.4}
+        sizeAttenuation
+        depthWrite={false}
+        blending={THREE.AdditiveBlending}
+      />
+    </points>
+  );
+};
+
 /* ─── Mouse Parallax Camera Rig ──────────────────────────────────── */
 const CameraRig = () => {
   const { camera } = useThree();
@@ -17,17 +64,16 @@ const CameraRig = () => {
   const lookTarget = useRef(new THREE.Vector3(0, 3, 0));
 
   useFrame((state, delta) => {
-    const px = state.pointer.x; // -1 to 1
+    const px = state.pointer.x;
     const py = state.pointer.y;
 
-    // Parallax offset
+    // Parallax offset with subtle breathing
+    const breathe = Math.sin(state.clock.elapsedTime * 0.5) * 0.2;
     target.current.x = THREE.MathUtils.lerp(target.current.x, px * 2, delta * 2);
-    target.current.y = THREE.MathUtils.lerp(target.current.y, 5 + py * 1, delta * 2);
+    target.current.y = THREE.MathUtils.lerp(target.current.y, 5 + py * 1 + breathe, delta * 2);
 
-    // Smooth camera follow
     camera.position.lerp(target.current, delta * 3);
     
-    // Look-at with slight parallax
     lookTarget.current.x = px * 0.5;
     lookTarget.current.y = 3 + py * 0.3;
     camera.lookAt(lookTarget.current);
@@ -40,7 +86,6 @@ const CameraRig = () => {
 const CinematicLighting = () => {
   return (
     <>
-      {/* Key light — directional, warm-blue from upper-left */}
       <directionalLight
         position={[-15, 20, 10]}
         intensity={1.2}
@@ -54,14 +99,12 @@ const CinematicLighting = () => {
         shadow-bias={-0.0001}
       />
 
-      {/* Fill light — subtle purple from the right */}
       <directionalLight
         position={[12, 8, -5]}
         intensity={0.4}
         color="#a78bfa"
       />
 
-      {/* Spot on the logo */}
       <spotLight
         position={[0, 18, 5]}
         angle={0.3}
@@ -72,7 +115,6 @@ const CinematicLighting = () => {
         target-position={[0, 3, 0]}
       />
 
-      {/* Spot on the auth panel */}
       <spotLight
         position={[3, 12, 10]}
         angle={0.4}
@@ -82,13 +124,14 @@ const CinematicLighting = () => {
         target-position={[0, 3, 6]}
       />
 
-      {/* Ambient base — very low so shadows are rich */}
       <ambientLight intensity={0.08} color="#1e1b4b" />
 
-      {/* Hemisphere for subtle top/bottom contrast */}
       <hemisphereLight
         args={["#1e1b4b", "#0a0a0f", 0.3]}
       />
+
+      {/* Atmospheric fog */}
+      <fog attach="fog" args={["#050510", 30, 100]} />
     </>
   );
 };
@@ -102,6 +145,7 @@ const InnerScene = () => {
       <AtriumEnvironment />
       <ZentraLogo3D />
       <HolographicAuth />
+      <StarDust />
       <PostProcessing />
     </>
   );
@@ -118,7 +162,7 @@ export const AtriumScene = () => {
 
       <Canvas
         gl={{
-          antialias: false, // SMAA handles this
+          antialias: false,
           toneMapping: THREE.ACESFilmicToneMapping,
           toneMappingExposure: 1.2,
           localClippingEnabled: true,

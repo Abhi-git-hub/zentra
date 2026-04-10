@@ -1,110 +1,103 @@
+/* c:\Users\hp\Desktop\Zentra\components\Navbar.tsx */
 "use client";
 
-import React, { useEffect, useState } from "react";
-import { TrendingUp, Zap, Sun, Moon, Terminal, Gamepad2, Trophy } from "lucide-react";
-import { useTheme } from "next-themes";
-import { usePathname } from "next/navigation";
-import Link from "next/link";
+import React, { useEffect, useState, useMemo } from "react";
+import { Zap, User } from "lucide-react";
+import { motion } from "framer-motion";
+import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
+import ThemeToggle from "./ThemeToggle";
 
 export const Navbar = () => {
-  const { theme, setTheme } = useTheme();
-  const [mounted, setMounted] = useState(false);
-  const pathname = usePathname();
-  const [userXP, setUserXP] = useState(1240);
+  const supabase = useMemo(() => createSupabaseBrowserClient(), []);
+  const [userEmail, setUserEmail] = useState<string | null>(null);
+  const [userXP, setUserXP] = useState(0);
 
   useEffect(() => {
-    setMounted(true);
-  }, []);
+    (async () => {
+      try {
+        const { data } = await supabase.auth.getUser();
+        const u = data.user;
+        setUserEmail(u?.email ?? null);
+        if (u?.id) {
+          const { data: profile } = await supabase
+            .from("user_profiles")
+            .select("xp")
+            .eq("id", u.id)
+            .maybeSingle();
+          setUserXP(profile?.xp ?? 0);
+        }
+      } catch {
+        // Not signed in
+      }
+    })();
 
-  const cycleTheme = () => {
-    if (theme === "dark") setTheme("light");
-    else if (theme === "light") setTheme("neon");
-    else setTheme("dark");
-  };
-
-  const getThemeIcon = () => {
-    if (theme === "dark") return <Moon size={14} />;
-    if (theme === "light") return <Sun size={14} />;
-    return <Terminal size={14} />;
-  };
-
-  const getThemeName = () => {
-    if (theme === "dark") return "Dark Glass";
-    if (theme === "light") return "Light Frost";
-    return "Neon Terminal";
-  };
-
-  // Basic check if we are in a scenario
-  const isInScenario = pathname?.includes("/scenario/");
+    const { data: sub } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUserEmail(session?.user?.email ?? null);
+    });
+    return () => { sub.subscription.unsubscribe(); };
+  }, [supabase]);
 
   return (
-    <nav className="sticky top-0 z-50 h-14 flex items-center justify-between px-6 glass-card-base border-x-0 border-t-0 rounded-none border-b border-b-[var(--nav-border)]">
-      <div className="flex items-center gap-6">
-        <Link href="/" className="flex items-center gap-2 text-[var(--accent-up)] hover:opacity-80 transition-opacity">
-          <TrendingUp size={20} className="stroke-[2.5px]" />
-          <span className="font-bold tracking-wider text-lg">ZENTRA</span>
-        </Link>
-
-        {/* Navigation Links */}
-        <div className="hidden md:flex items-center gap-1">
-          <Link
-            href="/dashboard/games"
-            className={`flex items-center gap-2 px-3 py-1.5 text-xs font-medium rounded-lg transition-colors ${
-              pathname?.includes('/games')
-                ? 'bg-[var(--accent-primary)] bg-opacity-20 text-[var(--accent-primary)]'
-                : 'text-[var(--text-secondary)] hover:bg-white hover:bg-opacity-5'
-            }`}
-          >
-            <Gamepad2 size={14} />
-            Games
-          </Link>
-          <Link
-            href="/dashboard/leaderboard"
-            className={`flex items-center gap-2 px-3 py-1.5 text-xs font-medium rounded-lg transition-colors ${
-              pathname?.includes('/leaderboard')
-                ? 'bg-[var(--accent-primary)] bg-opacity-20 text-[var(--accent-primary)]'
-                : 'text-[var(--text-secondary)] hover:bg-white hover:bg-opacity-5'
-            }`}
-          >
-            <Trophy size={14} />
-            Leaderboard
-          </Link>
-        </div>
+    <motion.nav
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ delay: 0.3, duration: 0.8 }}
+      style={{
+        height: "64px",
+        background: "rgba(0,0,0,0.6)",
+        backdropFilter: "blur(20px)",
+        WebkitBackdropFilter: "blur(20px)",
+        borderBottom: "1px solid rgba(255,255,255,0.06)",
+        position: "fixed",
+        top: 0,
+        width: "100%",
+        zIndex: 100,
+      }}
+      className="flex items-center justify-between px-6 lg:px-[8%]"
+    >
+      {/* Left: Logo */}
+      <div className="flex items-center">
+        <a href="/" className="font-bold text-[20px] tracking-wide relative z-10 font-sans" style={{fontFamily: "'Space Grotesk', sans-serif"}}>
+          <span style={{ color: "#00C896" }}>Z</span>
+          <span className="text-white">ENTRA</span>
+        </a>
       </div>
 
-      <div className="flex items-center gap-4">
-        {isInScenario && (
-          <span className="text-sm text-[var(--text-secondary)] hidden md:inline-block">
-            Training Session
-          </span>
+      {/* Right: Controls & User */}
+      <div className="flex items-center gap-4 relative z-10">
+        <ThemeToggle />
+
+        {userXP > 0 && (
+          <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[rgba(255,255,255,0.04)] border border-[rgba(255,255,255,0.08)]">
+            <Zap size={14} color="#7B6EF6" className="fill-[#7B6EF6]" />
+            <span className="font-mono-num text-[13px] text-white">
+              {userXP.toLocaleString()}
+            </span>
+          </div>
         )}
 
-        {mounted && (
-          <button
-            onClick={cycleTheme}
-            className="flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium border border-[var(--border-glass)] bg-[var(--bg-glass)] hover:bg-[var(--text-secondary)]/10 transition-colors"
+        {/* User avatar */}
+        {userEmail ? (
+          <div
+            className="w-9 h-9 rounded-full flex items-center justify-center text-sm font-bold shadow-[0_0_15px_rgba(123,110,246,0.3)]"
+            style={{
+              background: "linear-gradient(135deg, rgba(0,200,150,0.2), rgba(123,110,246,0.2))",
+              border: "1px solid rgba(255,255,255,0.1)",
+              color: "#fff",
+            }}
           >
-            {getThemeIcon()}
-            <span className="hidden sm:inline">{getThemeName()}</span>
-          </button>
+            {userEmail[0].toUpperCase()}
+          </div>
+        ) : (
+          <div
+            className="w-9 h-9 rounded-full flex items-center justify-center bg-[rgba(255,255,255,0.04)] border border-[rgba(255,255,255,0.08)]"
+          >
+            <User size={16} color="rgba(255,255,255,0.5)" />
+          </div>
         )}
-
-        <div
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold text-[var(--accent-warning)] border border-[var(--accent-warning)]/20"
-          style={{
-            background: "rgba(217,119,6,0.06)",
-            textShadow: "0 0 8px rgba(217,119,6,0.6)",
-            animation: "xpPulse 3s ease-in-out infinite",
-          }}
-        >
-          <Zap size={14} className="fill-current" />
-          <span style={{ fontFamily: "ui-monospace, SFMono-Regular, monospace", letterSpacing: "0.05em" }}>{userXP.toLocaleString()} XP</span>
-        </div>
-
-        <div className="w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm bg-[var(--bg-glass)] border border-[var(--border-glass)]">
-          U
-        </div>
       </div>
-    </nav>
+    </motion.nav>
   );
 };
+
+export default Navbar;

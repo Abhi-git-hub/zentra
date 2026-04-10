@@ -72,24 +72,24 @@ export default function BehaviorRadar({ trades }: Props) {
     <div style={{ width: "100%", height: 280 }}>
       <ResponsiveContainer width="100%" height="100%">
         <RadarChart cx="50%" cy="50%" outerRadius="70%" data={data}>
-          <PolarGrid stroke="var(--border)" />
+          <PolarGrid stroke="rgba(34, 197, 94, 0.12)" />
           <PolarAngleAxis
             dataKey="subject"
-            tick={{ fill: "var(--text-secondary)", fontSize: 11 }}
+            tick={{ fill: "#a7f3d0", fontSize: 11 }}
           />
           <Radar
             name="Psychology"
             dataKey="value"
-            stroke="var(--accent-ai)"
-            fill="var(--accent-ai)"
+            stroke="#3b82f6"
+            fill="#3b82f6"
             fillOpacity={0.3}
           />
           <Tooltip
             contentStyle={{
-              background: "var(--bg-card)",
-              border: "1px solid var(--border)",
+              background: "rgba(10, 25, 15, 0.9)",
+              border: "1px solid rgba(34, 197, 94, 0.15)",
               borderRadius: 8,
-              color: "var(--text-primary)",
+              color: "#ffffff",
             }}
             formatter={(value) => [`${typeof value === "number" ? value : Number(value) || 0}%`, "Share"]}
           />

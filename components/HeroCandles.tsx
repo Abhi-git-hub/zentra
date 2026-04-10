@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo } from "react";
+import React, { useMemo, useRef } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 
@@ -89,5 +89,4 @@ export const HeroCandles = () => {
   );
 };
 
-import { useRef } from "react";
 export default HeroCandles;
