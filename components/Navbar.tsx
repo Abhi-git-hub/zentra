@@ -1,14 +1,16 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { TrendingUp, Zap, Sun, Moon, Terminal } from "lucide-react";
+import { TrendingUp, Zap, Sun, Moon, Terminal, Gamepad2, Trophy } from "lucide-react";
 import { useTheme } from "next-themes";
 import { usePathname } from "next/navigation";
+import Link from "next/link";
 
 export const Navbar = () => {
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
   const pathname = usePathname();
+  const [userXP, setUserXP] = useState(1240);
 
   useEffect(() => {
     setMounted(true);
@@ -37,9 +39,37 @@ export const Navbar = () => {
 
   return (
     <nav className="sticky top-0 z-50 h-14 flex items-center justify-between px-6 glass-card-base border-x-0 border-t-0 rounded-none border-b border-b-[var(--nav-border)]">
-      <div className="flex items-center gap-2 text-[var(--accent-up)]">
-        <TrendingUp size={20} className="stroke-[2.5px]" />
-        <span className="font-bold tracking-wider text-lg">ZENTRA</span>
+      <div className="flex items-center gap-6">
+        <Link href="/" className="flex items-center gap-2 text-[var(--accent-up)] hover:opacity-80 transition-opacity">
+          <TrendingUp size={20} className="stroke-[2.5px]" />
+          <span className="font-bold tracking-wider text-lg">ZENTRA</span>
+        </Link>
+
+        {/* Navigation Links */}
+        <div className="hidden md:flex items-center gap-1">
+          <Link
+            href="/dashboard/games"
+            className={`flex items-center gap-2 px-3 py-1.5 text-xs font-medium rounded-lg transition-colors ${
+              pathname?.includes('/games')
+                ? 'bg-[var(--accent-primary)] bg-opacity-20 text-[var(--accent-primary)]'
+                : 'text-[var(--text-secondary)] hover:bg-white hover:bg-opacity-5'
+            }`}
+          >
+            <Gamepad2 size={14} />
+            Games
+          </Link>
+          <Link
+            href="/dashboard/leaderboard"
+            className={`flex items-center gap-2 px-3 py-1.5 text-xs font-medium rounded-lg transition-colors ${
+              pathname?.includes('/leaderboard')
+                ? 'bg-[var(--accent-primary)] bg-opacity-20 text-[var(--accent-primary)]'
+                : 'text-[var(--text-secondary)] hover:bg-white hover:bg-opacity-5'
+            }`}
+          >
+            <Trophy size={14} />
+            Leaderboard
+          </Link>
+        </div>
       </div>
 
       <div className="flex items-center gap-4">
@@ -68,7 +98,7 @@ export const Navbar = () => {
           }}
         >
           <Zap size={14} className="fill-current" />
-          <span style={{ fontFamily: "ui-monospace, SFMono-Regular, monospace", letterSpacing: "0.05em" }}>1,240 XP</span>
+          <span style={{ fontFamily: "ui-monospace, SFMono-Regular, monospace", letterSpacing: "0.05em" }}>{userXP.toLocaleString()} XP</span>
         </div>
 
         <div className="w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm bg-[var(--bg-glass)] border border-[var(--border-glass)]">
