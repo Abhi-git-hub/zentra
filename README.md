@@ -1,67 +1,54 @@
-# Zentra
+# Zentra — Trading Psychology Simulator
 
-Zentra is an immersive trading psychology simulator built with Next.js, React Three Fiber, Supabase, and gamified learning loops. Instead of focusing only on chart patterns, Zentra trains decision-making under pressure through market scenarios, XP progression, mini-games, leaderboards, and AI-generated coaching.
+Zentra is an interactive learning product that trains trading decision-making under pressure through simulated market scenarios, behavioral scoring, gamification, and AI coaching.
 
-## Why Zentra
+## Product problem
 
-Most trading products help users analyze the market. Zentra is designed to help users analyze themselves.
+Most trading tools focus on charts and market analysis. Zentra focuses on the person making the decision: discipline, FOMO, panic selling, loss holding, and risk behavior.
 
-The experience combines:
+## What users can do
 
-- Historical-style scenario drills such as crash, rally, and choppy markets
-- Interactive 2D and 3D chart views for simulated trade decisions
-- Behavioral feedback tied to discipline, FOMO, panic selling, and loss holding
-- XP progression, mini-games, and a public leaderboard
-- An AI Mentor API that turns recent trades into direct coaching feedback
+- Enter simulated crash, rally, and choppy-market scenarios
+- Make trade decisions against OHLC data
+- Receive behavioral feedback and scoring
+- Track XP and progression
+- Play short psychology-training mini-games
+- Compare progression on a leaderboard
+- Ask an AI Mentor for coaching based on recent trades
 
-## Core Features
+## Architecture
 
-- Scenario-based training
-- Interactive dashboard with XP tracking
-- 3D candle and mountain chart visualizations
-- Mini-games for rapid psychology drills
-- Supabase-backed auth, profiles, scenarios, and trades
-- AI Mentor feedback via the `/api/ai-mentor` route
-- Premium motion-driven UI with glassmorphism and cinematic styling
+```text
+Next.js application
+   │
+   ├── Authentication
+   ├── Dashboard / scenarios / games
+   ├── 2D + 3D visualization
+   ├── Behavior scoring engine
+   └── /api/ai-mentor
+              │
+              ├── Supabase
+              │      ├── profiles
+              │      ├── scenarios
+              │      ├── trades
+              │      └── leaderboard
+              │
+              └── LLM provider
+```
 
-## Tech Stack
+## Stack
 
 - Next.js 14
 - React 18
 - TypeScript
 - Tailwind CSS
 - Framer Motion
-- Three.js
-- React Three Fiber
-- React Three Drei
+- Three.js / React Three Fiber
 - Recharts
 - Supabase
 - NextAuth
 
-## Project Structure
-
-```text
-app/
-  api/
-    ai-mentor/        AI coaching endpoint
-    auth/             NextAuth routes
-    seed/             Scenario seeding route
-  auth/               Sign-in flow
-  dashboard/          Main dashboard, scenarios, games, leaderboard
-  page.tsx            Landing page
-
-components/
-  games/              Mini-games
-  atrium/             Immersive scene components
-  *Chart*.tsx         2D/3D chart renderers
-
-lib/
-  behaviorEngine.ts   Trade behavior scoring logic
-  seedScenarios.ts    Scenario ingestion and seeding
-  supabase/           Browser client helpers
-```
-
-## Getting Started
+## Local development
 
 ### 1. Install dependencies
 
@@ -69,90 +56,43 @@ lib/
 npm install
 ```
 
-### 2. Create your local environment file
+### 2. Configure environment
 
-Copy `.env.local.example` to `.env.local` and fill in the values:
+Copy `.env.local.example` to `.env.local` and provide the required Supabase, authentication, and AI credentials.
 
-```env
-NEXT_PUBLIC_SUPABASE_URL=
-NEXT_PUBLIC_SUPABASE_ANON_KEY=
+Never commit `.env.local` or real credentials.
 
-ANTHROPIC_API_KEY=
-
-NEXTAUTH_SECRET=
-NEXTAUTH_URL=http://localhost:3000
-
-GOOGLE_CLIENT_ID=
-GOOGLE_CLIENT_SECRET=
-GOOGLE_API_KEY=
-```
-
-Notes:
-
-- Supabase powers authentication and app data.
-- Google OAuth is used in the auth flow.
-- `GOOGLE_API_KEY` is used by the AI Mentor route.
-- `ANTHROPIC_API_KEY` appears in the example env file, but the current AI mentor route uses Google Gemini.
-
-### 3. Run the app
+### 3. Run
 
 ```bash
 npm run dev
 ```
 
-Open `http://localhost:3000`.
-
-## Available Scripts
+### 4. Validate
 
 ```bash
-npm run dev
-npm run build
-npm run start
 npm run lint
+npm run build
 ```
 
-## Product Flow
+## Engineering highlights
 
-1. Users land on the immersive homepage and authenticate with Google.
-2. The dashboard surfaces scenarios, XP, games, and leaderboard access.
-3. A user enters a scenario and places simulated trades against OHLC data.
-4. The behavior engine tags the trade and updates score impact.
-5. The AI Mentor returns structured coaching with discipline, risk, and emotional-control scores.
-6. XP and profile metrics flow into the leaderboard and progression loop.
+- Componentized Next.js application architecture
+- Typed application code with TypeScript
+- Database-backed user progression
+- Behavioral scoring separated into a dedicated engine
+- API route for AI coaching
+- Interactive 2D/3D data visualization
+- Motion design used to reinforce product feedback
 
-## Data Model Overview
+## Production notes
 
-The app currently interacts with data shaped around:
+The current repository is a strong product prototype and technical showcase. Before production release, complete the remaining TypeScript cleanup, verify authentication and authorization rules, configure production environment variables, add automated tests, and establish CI checks.
 
-- `scenarios`
-- `trades`
-- `user_profiles`
-- `user_leaderboard` view
-- raw candle source tables used by the seeding flow
+## Status
 
-## Visual Design Direction
-
-Zentra leans into a futuristic learning environment rather than a typical finance dashboard:
-
-- glass cards and atmospheric gradients
-- animated sparklines and motion transitions
-- 3D chart scenes with orbit controls
-- dark, cinematic presentation tuned for focus
-
-## Current Notes
-
-- `npm run lint` passes in the current repo state.
-- There are existing TypeScript issues outside the README work that should be cleaned up before a production release.
-- The repository currently includes scenario seeding and AI mentor plumbing, so local setup depends on valid Supabase and Google credentials.
-
-## Roadmap Ideas
-
-- richer scenario library and difficulty progression
-- user trade journals and replay summaries
-- mentor personalization and long-term coaching memory
-- achievement system and streak mechanics
-- production deployment configuration and CI checks
+Portfolio project demonstrating modern React/Next.js product development, interactive UX, data-backed application design, and AI integration.
 
 ## License
 
-No license file is currently present in this repository. Add one before open distribution if needed.
+No license is currently included. Add an appropriate license before open distribution.
