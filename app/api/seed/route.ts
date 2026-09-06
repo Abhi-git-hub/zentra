@@ -1,42 +1,50 @@
 import { seedScenarios } from "@/lib/seedScenarios";
+import { createServerClient, type CookieOptions } from "@supabase/ssr";
+import { cookies } from "next/headers";
 
-export async function POST(request: Request) {
+async function requireUser() {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  if (!supabaseUrl || !supabaseAnonKey) return null;
+
+  const cookieStore = cookies();
+  const supabase = createServerClient(supabaseUrl, supabaseAnonKey, {
+    cookies: {
+      getAll() {
+        return cookieStore.getAll();
+      },
+      setAll(cookiesToSet: { name: string; value: string; options: CookieOptions }[]) {
+        cookiesToSet.forEach(({ name, value, options }) => cookieStore.set(name, value, options));
+      },
+    },
+  });
+
+  const { data } = await supabase.auth.getUser();
+  return data.user;
+}
+
+export async function POST() {
   try {
-    console.log("[API /seed] Starting seed request...");
+    const user = await requireUser();
+    if (!user) {
+      return Response.json({ success: false, error: "Authentication required" }, { status: 401 });
+    }
+
+    if (process.env.NODE_ENV === "production" && process.env.ALLOW_SCENARIO_SEED !== "true") {
+      return Response.json({ success: false, error: "Scenario seeding is disabled" }, { status: 403 });
+    }
+
     await seedScenarios();
-    console.log("[API /seed] ✓ Scenarios seeded successfully!");
+
     return Response.json({
       success: true,
-      message: "Scenarios seeded successfully!",
+      message: "Scenarios seeded successfully",
     });
   } catch (error) {
-    console.error("[API /seed] ✗ Seed failed with error:", error);
-    
-    // Better error extraction
-    let message = "Unknown error";
-    let details = String(error);
-    
-    if (error instanceof Error) {
-      message = error.message;
-      details = error.stack || error.toString();
-    } else if (error && typeof error === 'object') {
-      message = (error as any).message || JSON.stringify(error);
-      details = JSON.stringify(error, null, 2);
-    } else if (typeof error === 'string') {
-      message = error;
-    }
-    
-    console.error("[API /seed] Message:", message);
-    console.error("[API /seed] Details:", details);
-    
+    console.error("[API /seed] Seed failed:", error);
     return Response.json(
-      {
-        success: false,
-        error: message,
-        details: details,
-      },
+      { success: false, error: "Unable to seed scenarios" },
       { status: 500 }
     );
   }
 }
-
