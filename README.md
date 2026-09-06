@@ -1,39 +1,33 @@
 # Zentra — Trading Psychology Simulator
 
-Zentra is an interactive learning product that trains trading decision-making under pressure through simulated market scenarios, behavioral scoring, gamification, and AI coaching.
-
-## Product problem
-
-Most trading tools focus on charts and market analysis. Zentra focuses on the person making the decision: discipline, FOMO, panic selling, loss holding, and risk behavior.
+Zentra is an interactive learning product that trains trading decision-making under pressure through simulated market scenarios, behavioral scoring, gamification, and guided feedback.
 
 ## What users can do
 
 - Enter simulated crash, rally, and choppy-market scenarios
-- Make trade decisions against OHLC data
-- Receive behavioral feedback and scoring
+- Make trade decisions against OHLCV data
+- Receive behavioral feedback and discipline scoring
 - Track XP and progression
-- Play short psychology-training mini-games
+- Play short trading-psychology mini-games
 - Compare progression on a leaderboard
-- Ask an AI Mentor for coaching based on recent trades
+- Sign in with Google through Supabase Auth
 
 ## Architecture
 
 ```text
-Next.js application
+Next.js 14 application
    │
-   ├── Authentication
+   ├── Supabase Auth
    ├── Dashboard / scenarios / games
-   ├── 2D + 3D visualization
-   ├── Behavior scoring engine
-   └── /api/ai-mentor
+   ├── 2D + 3D market visualization
+   ├── Behavioral scoring engine
+   └── Server route for controlled scenario seeding
               │
-              ├── Supabase
-              │      ├── profiles
-              │      ├── scenarios
-              │      ├── trades
-              │      └── leaderboard
-              │
-              └── LLM provider
+              └── Supabase
+                   ├── user_profiles
+                   ├── scenarios
+                   ├── trades
+                   └── raw market-data tables
 ```
 
 ## Stack
@@ -45,8 +39,7 @@ Next.js application
 - Framer Motion
 - Three.js / React Three Fiber
 - Recharts
-- Supabase
-- NextAuth
+- Supabase + `@supabase/ssr`
 
 ## Local development
 
@@ -58,7 +51,7 @@ npm install
 
 ### 2. Configure environment
 
-Copy `.env.local.example` to `.env.local` and provide the required Supabase, authentication, and AI credentials.
+Copy `.env.local.example` to `.env.local` and provide the Supabase URL, Supabase anonymous key, and any server-side AI credentials used by your local build.
 
 Never commit `.env.local` or real credentials.
 
@@ -75,24 +68,18 @@ npm run lint
 npm run build
 ```
 
-## Engineering highlights
+## Security notes
 
-- Componentized Next.js application architecture
-- Typed application code with TypeScript
-- Database-backed user progression
-- Behavioral scoring separated into a dedicated engine
-- API route for AI coaching
-- Interactive 2D/3D data visualization
-- Motion design used to reinforce product feedback
+Authentication is handled through Supabase Auth. Dashboard routes require an authenticated Supabase session, OAuth callback redirects are restricted to local paths, and the scenario-seeding endpoint is protected rather than publicly callable.
 
-## Production notes
+The gamification migration also constrains the privileged statistics RPC so a caller cannot update another user's profile and keeps discipline scores within their expected range.
 
-The current repository is a strong product prototype and technical showcase. Before production release, complete the remaining TypeScript cleanup, verify authentication and authorization rules, configure production environment variables, add automated tests, and establish CI checks.
+## Current product status
 
-## Status
+Zentra is a strong technical/product prototype demonstrating modern Next.js architecture, interactive market visualization, behavioral scoring, gamification, and Supabase-backed persistence.
 
-Portfolio project demonstrating modern React/Next.js product development, interactive UX, data-backed application design, and AI integration.
+Before treating it as a production SaaS, finish the runtime QA pass, add automated tests/CI, review Supabase RLS policies in the live project, and remove any remaining demo-only UI behavior.
 
 ## License
 
-No license is currently included. Add an appropriate license before open distribution.
+No license is currently declared in the repository.
