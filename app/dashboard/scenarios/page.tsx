@@ -25,19 +25,20 @@ export default function ScenariosPage() {
 
   const itemVariants = {
     hidden: { opacity: 0, y: 40 },
-    show: { 
-      opacity: 1, 
+    show: {
+      opacity: 1,
       y: 0,
       transition: { duration: 0.7, ease: [0.22, 1, 0.36, 1] }
     },
   };
 
+  // Keep these IDs aligned with the seeded scenario records used by the main dashboard.
   const SCENARIOS = [
     {
-      id: "covid-crash",
+      id: "5",
       name: "The COVID Crash",
       difficulty: "Beginner",
-      context: "March 2020. Global markets are in freefall. Panic selling is at historic highs. VIX spiked to 82.69. The psychological pressure to liquidate everything is overwhelming.",
+      context: "March 2020. Global markets are in freefall. Panic selling is at historic highs. The psychological pressure to liquidate everything is overwhelming.",
       accentColor: "#FF3B5C",
       glowShadowColor: "rgba(255, 59, 92, 0.15)",
       hoverGlowShadowColor: "rgba(255, 59, 92, 0.3)",
@@ -49,7 +50,7 @@ export default function ScenariosPage() {
       ]
     },
     {
-      id: "bull-rally",
+      id: "6",
       name: "The Bull Rally",
       difficulty: "Intermediate",
       context: "November 2020. Vaccine announcements trigger massive gap-ups. Everything you look at is turning green. The FOMO is intense and you feel left behind.",
@@ -64,7 +65,7 @@ export default function ScenariosPage() {
       ]
     },
     {
-      id: "choppy-market",
+      id: "7",
       name: "The Choppy Market",
       difficulty: "Expert",
       context: "Mid 2022. No clear direction. Fake breakouts followed by harsh rejections. The market is hunting stop-losses. This is where traders bleed out from a thousand cuts.",
@@ -84,8 +85,6 @@ export default function ScenariosPage() {
     <>
       <PageEntrance />
       <main className="w-full min-h-screen bg-[#000000] pt-[140px] pb-[80px] lg:pt-[160px] lg:pb-[120px] px-[5%] lg:px-[8%]">
-        
-        {/* Title Section */}
         <motion.div
           initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}
@@ -103,8 +102,7 @@ export default function ScenariosPage() {
           </p>
         </motion.div>
 
-        {/* Cards Grid */}
-        <motion.div 
+        <motion.div
           className="flex flex-col xl:flex-row gap-6 max-w-[1400px] mx-auto"
           variants={containerVariants}
           initial="hidden"
@@ -116,7 +114,6 @@ export default function ScenariosPage() {
             </motion.div>
           ))}
         </motion.div>
-        
       </main>
     </>
   );
